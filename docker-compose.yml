@@ -1,0 +1,10 @@
+#https://github.com/messari/docker-google-cloud-sdk-auth-wrapper
+version: '3'
+services:
+  app:
+    build: "./"
+    volumes:
+      - ./:/app/src
+    ports:
+      - "8888:8888" # for jupyter
+    command: jupyter lab --ip=0.0.0.0 --allow-root --NotebookApp.token='' --port=8888
