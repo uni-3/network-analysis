@@ -168,7 +168,6 @@ def draw_network(
         remove = [node for node, attr in dict(g.nodes(data=True)).items() if attr['apply_count'] < apply_thresh]
         g.remove_nodes_from(remove)
         
-    #labels = get_labels(g, df)
     pos = nx.spring_layout(g, k=0.4, iterations=iterations)
     plt.figure(figsize=(14, 14))
 
@@ -192,12 +191,12 @@ def draw_network(
         pos,
         node_color=node_color,
         node_size=node_size_apply,
-        # , cmap=plt.cm.rainbow
-        
+        #cmap=plt.cm.rainbow,
         #cmap=plt.cm.Pastel1,
     )
-    # , cmap=plt.cm.Oranges)
     if draw_label:
+        #labels = get_labels(g, df)
+        labels = {n: n for i, (n, d) in enumerate(g.nodes(data=True))}
         nx.draw_networkx_labels(g, pos=pos, labels=labels, font_family="IPAexGothic")
     plt.axis("off")
     plt.show()
@@ -205,7 +204,7 @@ def draw_network(
 
 # 渡したnodeを中心としたネットワーク
 def draw_ego_network(g, df, node_color=None, node_name=None,
-                     node_size_apply=None, edge_thresh=0, apply_thresh=None):
+                     node_size_apply=None, edge_thresh=0, apply_thresh=None, draw_label=None):
     # node_and_degree = G.degree()
     # (largest_hub, degree) = sorted(node_and_degree, key=itemgetter(1))[-1]
     # Create ego graph of main hub
@@ -213,13 +212,16 @@ def draw_ego_network(g, df, node_color=None, node_name=None,
     if apply_thresh is not None:
         remove = [node for node, attr in dict(eg.nodes(data=True)).items() if attr['apply_count'] < apply_thresh]
         eg.remove_nodes_from(remove)
-        
-    #labels = get_labels(eg, df)
+    
+    labels = None
+    if draw_label:
+        #labels = get_labels(g, df)
+        labels = {n: n for i, (n, d) in enumerate(eg.nodes(data=True))}
     # Draw graph
     pos = nx.spring_layout(eg, k=0.3)
     plt.figure(figsize=(22, 22))
     
-    edge_width = [d["weight"] * 0.1 if d["weight"] >= edge_thresh else 0 for (u, v, d) in eg.edges(data=True)]
+    edge_width = [d["weight"] * 0.4 if d["weight"] >= edge_thresh else 0 for (u, v, d) in eg.edges(data=True)]
 
     if node_size_apply is None:
         node_size_apply = 300
@@ -272,24 +274,22 @@ def plot_power(g):
 
     
 def network_stats(g):
-    print(f"""求人2部グラフの射影
+    print(f"""network stats
     ノード数: {g.number_of_nodes()}
     リンク数: {g.number_of_edges()}
     1node当たりの平均リンク数: {g.number_of_edges()/g.number_of_nodes():.3f}
     クラスタリング係数: {nx.average_clustering(g):.3f}
-    次数相関: {nx.algorithms.assortativity.degree_assortativity_coefficient(g):.3f}
-    平均パス長: {nx.average_shortest_path_length(g):.3f}
-    Qmax: 
-    モジュール数
-    user transitivity: {nx.transitivity(g):.3f}
-    item density: {nx.density(g):.3f}
+    次数相関: {nx.algorithms.assortativity.degree_assortativity_coefficient(g):.3f}  
     """)
+    #平均パス長: {nx.average_shortest_path_length(g):.3f}
+    #Qmax: 
+    #モジュール数
+    #user transitivity: {nx.transitivity(g):.3f}
+    #item density: {nx.density(g):.3f}
 
 
 # 類似度
 def print_sim_node(g, x=3003425278, y=3003475283):
-    # x = 3003425278 # チロルチョコの企画事務・デザイン／商品企画・タイアップ企画等
-    # y = 3003475283 # 新幹線早期地震防災 株式会社ジェイアール総研エンジニアリング
     print("vertex pair:", x, "and", y)
     print("n of neighbors", x, ":", len(list(g.neighbors(x))))
     print("n of neighbors", y, ":", len(list(g.neighbors(y))))
